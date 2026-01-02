@@ -108,7 +108,7 @@ py-news-aggregator/
 ### Key Libraries
 - **feedparser**: RSS feed parsing
 - **youtube-transcript-api**: YouTube transcript extraction
-- **docling**: Markdown content conversion
+- **html-to-markdown**: HTML to Markdown conversion
 - **beautifulsoup4**: HTML parsing
 - **pydantic**: Data validation and parsing
 - **python-dotenv**: Environment management

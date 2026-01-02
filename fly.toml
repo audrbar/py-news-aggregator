@@ -1,0 +1,14 @@
+# fly.toml app configuration file for py-news-aggregator
+app = 'py-news-aggregator'
+primary_region = 'fra'
+
+[build]
+  dockerfile = "Dockerfile.flyio"
+
+[env]
+  PYTHONUNBUFFERED = "1"
+  ENVIRONMENT = "prod"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -1,0 +1,58 @@
+# Fly.io optimized Dockerfile with cron support
+# Based on existing multi-stage build with cron additions
+
+# ------- Stage 1: Base Setup (Debian Slim) -----
+FROM python:3.12-slim AS python_base
+
+# Python optimizations
+ENV PYTHONUNBUFFERED=1
+ENV UV_COMPILE_BYTECODE=1
+
+# Install PostgreSQL client libraries (required for psycopg2) and cron
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ------ Stage 2: Builder ------
+FROM python_base AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml uv.lock ./
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# -------- Stage 3: Production with Cron ------
+FROM python_base AS prod
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
+
+# Note: Not using unprivileged user because cron needs root
+WORKDIR /app
+
+COPY --from=builder /app/.venv /app/.venv
+COPY app ./app
+COPY main.py ./
+COPY start-cron.sh ./
+
+# Make start script executable
+RUN chmod +x /app/start-cron.sh
+
+# Create cache directory
+RUN mkdir -p /app/.cache/uv
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/"
+
+# Run cron as the main process
+CMD ["/app/start-cron.sh"]

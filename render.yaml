@@ -1,0 +1,31 @@
+# Using external database (Railway) - Render managed database disabled
+# databases:
+#   - name: py-news-aggregator-db
+#     databaseName: py_news_aggregator
+#     user: ai_news_user
+#     plan: free
+
+services:
+  - type: cron
+    name: daily-digest-job
+    env: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 5 * * *"
+    dockerCommand: python main.py
+    envVars:
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MY_EMAIL
+        sync: false
+      - key: APP_PASSWORD
+        sync: false

@@ -47,3 +47,9 @@ Traditional tutorials show you the "right way" to do things. This video shows yo
 - Build muscle memory through hands-on practice
 
 **The most valuable learning happens when you struggle, reference the code, and push through to the next checkpoint.**
+
+```docker build --target dev -t py-news-aggregator:dev .```
+```docker run --env-file app/.env py-news-aggregator:dev```
+```docker build --target prod -t py-news-aggregator:prod .```
+```docker run --env-file app/.env py-news-aggregator:prod```
+```uv run python -m app.runner```

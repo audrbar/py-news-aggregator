@@ -1,0 +1,78 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+
+# Build artifacts
+*.so
+*.egg
+*.egg-info/
+*.whl
+.installed.cfg
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.dev
+.env.test
+.env.production
+.env.prod
+local.properties
+
+# Version control
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/
+.dockerignore
+
+# Documentation
+README.md
+DEPLOYMENT.md
+*.md
+
+# Logs
+*.log
+*.err
+
+# Test directories
+test/
+tests/
+coverage/
+.pytest_cache/

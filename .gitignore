@@ -256,3 +256,6 @@ app/alembic/versions/*
 playground/*.png
 
 app/google-service-account.json
+
+# Docker
+docker-compose.override.yml

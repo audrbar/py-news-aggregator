@@ -288,7 +288,7 @@ The cron job runs daily at 5:00 AM UTC by default (configurable in `start-cron.s
 
 ## Pipeline Workflow
 
-1. **Scraping** (Hours configurable, default 60h)
+1. **Scraping** (Hours configurable, default 24h)
 
     - Fetch YouTube videos from configured channels
     - Parse OpenAI blog RSS feed

@@ -5,6 +5,7 @@ An intelligent, personalized news aggregation system that scrapes AI-related con
 ## Overview
 
 This system automatically:
+
 1. **Scrapes** content from YouTube (transcripts), OpenAI blog (RSS), and Anthropic blog (RSS + full markdown)
 2. **Processes** raw content using AI to generate concise digests
 3. **Curates** articles using GPT-4 based on user profile preferences
@@ -14,13 +15,13 @@ The entire pipeline runs daily via a scheduled cron job and maintains a PostgreS
 
 ## Key Features
 
-- **Multi-Source Scraping**: YouTube videos, OpenAI blog, Anthropic news
-- **AI-Powered Processing**: GPT-4o-mini for digest generation, GPT-4.1 for curation
-- **Personalized Ranking**: Content ranked based on user profile and interests
-- **Duplicate Prevention**: Database tracking prevents reprocessing articles
-- **Professional Email Delivery**: HTML emails with responsive design
-- **Flexible Deployment**: Supports both local development and production environments
-- **Scheduled Automation**: Daily execution with configurable time windows
+-   **Multi-Source Scraping**: YouTube videos, OpenAI blog, Anthropic news
+-   **AI-Powered Processing**: GPT-4o-mini for digest generation, GPT-4.1 for curation
+-   **Personalized Ranking**: Content ranked based on user profile and interests
+-   **Duplicate Prevention**: Database tracking prevents reprocessing articles
+-   **Professional Email Delivery**: HTML emails with responsive design
+-   **Flexible Deployment**: Supports both local development and production environments
+-   **Scheduled Automation**: Daily execution with configurable time windows
 
 ## Architecture
 
@@ -41,23 +42,24 @@ The entire pipeline runs daily via a scheduled cron job and maintains a PostgreS
 
 ### Data Models
 
-- **YouTubeVideo**: Video metadata and transcripts
-- **OpenAIArticle**: OpenAI blog posts with RSS data
-- **AnthropicArticle**: Anthropic content with full markdown
-- **Digest**: AI-generated summaries with titles and summaries
+-   **YouTubeVideo**: Video metadata and transcripts
+-   **OpenAIArticle**: OpenAI blog posts with RSS data
+-   **AnthropicArticle**: Anthropic content with full markdown
+-   **Digest**: AI-generated summaries with titles and summaries
 
 ### AI Agents
 
 1. **Digest Agent** (`gpt-4o-mini`)
-   - Generates concise 2-3 sentence summaries
-   - Creates compelling titles (5-10 words)
-   - Focuses on actionable insights
+
+    - Generates concise 2-3 sentence summaries
+    - Creates compelling titles (5-10 words)
+    - Focuses on actionable insights
 
 2. **Curator Agent** (`gpt-4.1`)
-   - Ranks articles based on user profile
-   - Assigns relevance scores (0-10)
-   - Provides reasoning for rankings
-   - Returns top N articles for email digest
+    - Ranks articles based on user profile
+    - Assigns relevance scores (0-10)
+    - Provides reasoning for rankings
+    - Returns top N articles for email digest
 
 ## Project Structure
 
@@ -90,91 +92,103 @@ py-news-aggregator/
 │   ├── daily_runner.py        # Main pipeline orchestrator
 │   └── runner.py              # Scraper orchestrator
 ├── DEPLOYMENT.md              # Production deployment guide
+├── OPERATE.md                 # Operations and monitoring guide
 ├── main.py                    # Entry point
 ├── pyproject.toml             # Dependencies
 ├── docker-compose.yml         # Local PostgreSQL setup
-├── Dockerfile                 # Multi-stage production build
-└── render.yaml               # Render.com deployment config
+├── Dockerfile                 # Multi-stage build (local/dev)
+├── Dockerfile.flyio           # Fly.io production build with cron
+├── fly.toml                   # Fly.io configuration
+└── start-cron.sh              # Cron initialization script
 ```
 
 ## Technology Stack
 
 ### Core Technologies
-- **Python 3.12**: Modern Python with type hints
-- **PostgreSQL 17**: Relational database for content storage
-- **SQLAlchemy 2.0**: ORM and database toolkit
-- **OpenAI API**: GPT-4.1 and GPT-4o-mini for AI processing
+
+-   **Python 3.12**: Modern Python with type hints
+-   **PostgreSQL 17**: Relational database for content storage
+-   **SQLAlchemy 2.0**: ORM and database toolkit
+-   **OpenAI API**: GPT-4.1 and GPT-4o-mini for AI processing
 
 ### Key Libraries
-- **feedparser**: RSS feed parsing
-- **youtube-transcript-api**: YouTube transcript extraction
-- **html-to-markdown**: HTML to Markdown conversion
-- **beautifulsoup4**: HTML parsing
-- **pydantic**: Data validation and parsing
-- **python-dotenv**: Environment management
+
+-   **feedparser**: RSS feed parsing
+-   **youtube-transcript-api**: YouTube transcript extraction
+-   **html-to-markdown**: HTML to Markdown conversion
+-   **beautifulsoup4**: HTML parsing
+-   **pydantic**: Data validation and parsing
+-   **python-dotenv**: Environment management
 
 ### Infrastructure
-- **Docker**: Containerization (multi-stage builds)
-- **Render.com**: Cron job hosting
-- **Railway**: PostgreSQL production database
-- **uv**: Fast Python package installer
+
+-   **Docker**: Containerization (multi-stage builds)
+-   **Fly.io**: Application hosting with built-in cron
+-   **Railway**: PostgreSQL production database (optional)
+-   **uv**: Fast Python package installer
 
 ## Setup & Installation
 
 ### Prerequisites
 
-- Python 3.12+
-- Docker and Docker Compose
-- OpenAI API key
-- Gmail account with app password (for email delivery)
-- (Optional) Webshare proxy credentials for YouTube scraping
+-   Python 3.12+
+-   Docker and Docker Compose
+-   OpenAI API key
+-   Gmail account with app password (for email delivery)
+-   (Optional) Webshare proxy credentials for YouTube scraping
 
 ### Local Development
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd py-news-aggregator
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd py-news-aggregator
+    ```
 
 2. **Start local PostgreSQL**
-   ```bash
-   docker-compose up -d
-   ```
+
+    ```bash
+    docker-compose up -d
+    ```
 
 3. **Configure environment**
-   ```bash
-   cp app/example.env app/.env.dev
-   ```
 
-   Edit `app/.env.dev`:
-   ```env
-   OPENAI_API_KEY=sk-...
-   MY_EMAIL=your-email@gmail.com
-   APP_PASSWORD=your-app-password
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=postgres
-   POSTGRES_DB=py_news_aggregator
-   POSTGRES_HOST=localhost
-   POSTGRES_PORT=5432
-   PROXY_USERNAME=optional
-   PROXY_PASSWORD=optional
-   ```
+    ```bash
+    cp app/example.env app/.env.dev
+    ```
+
+    Edit `app/.env.dev`:
+
+    ```env
+    OPENAI_API_KEY=sk-...
+    MY_EMAIL=your-email@gmail.com
+    APP_PASSWORD=your-app-password
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=postgres
+    POSTGRES_DB=py_news_aggregator
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    PROXY_USERNAME=optional
+    PROXY_PASSWORD=optional
+    ```
 
 4. **Install dependencies**
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   uv sync
-   ```
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    uv sync
+    ```
 
 5. **Run the pipeline**
-   ```bash
-   # Default: 24 hours lookback, top 10 articles
-   uv run python -m main
 
-   # Custom: 24 hours lookback, top 5 articles
-   uv run python -m main 24 5
-   ```
+    ```bash
+    # Default: 24 hours lookback, top 10 articles
+    uv run python -m main
+
+    # Custom: 24 hours lookback, top 5 articles
+    uv run python -m main 24 5
+    ```
 
 ### Docker Development
 
@@ -233,82 +247,94 @@ YOUTUBE_CHANNELS = [
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ENVIRONMENT` | No | `dev` (default) or `prod` |
-| `POSTGRES_USER` | Yes | Database username |
-| `POSTGRES_PASSWORD` | Yes | Database password |
-| `POSTGRES_DB` | Yes | Database name |
-| `POSTGRES_HOST` | Yes | Database host |
-| `POSTGRES_PORT` | Yes | Database port |
-| `OPENAI_API_KEY` | Yes | OpenAI API key |
-| `MY_EMAIL` | Yes | Gmail address for sending |
-| `APP_PASSWORD` | Yes | Gmail app password |
-| `PROXY_USERNAME` | No | Webshare proxy username |
-| `PROXY_PASSWORD` | No | Webshare proxy password |
+| Variable            | Required | Description               |
+| ------------------- | -------- | ------------------------- |
+| `ENVIRONMENT`       | No       | `dev` (default) or `prod` |
+| `POSTGRES_USER`     | Yes      | Database username         |
+| `POSTGRES_PASSWORD` | Yes      | Database password         |
+| `POSTGRES_DB`       | Yes      | Database name             |
+| `POSTGRES_HOST`     | Yes      | Database host             |
+| `POSTGRES_PORT`     | Yes      | Database port             |
+| `OPENAI_API_KEY`    | Yes      | OpenAI API key            |
+| `MY_EMAIL`          | Yes      | Gmail address for sending |
+| `APP_PASSWORD`      | Yes      | Gmail app password        |
+| `PROXY_USERNAME`    | No       | Webshare proxy username   |
+| `PROXY_PASSWORD`    | No       | Webshare proxy password   |
 
 ## Deployment
 
 ### Production Architecture
-- **Application Hosting**: Render.com (scheduled cron job)
-- **Database**: Railway (PostgreSQL)
-- **Environment**: Separate `.env` and `.env.dev` files
+
+-   **Application Hosting**: Fly.io (persistent machine with cron)
+-   **Database**: Fly PostgreSQL or Railway (PostgreSQL)
+-   **Environment**: Secrets managed via Fly CLI
 
 ### Deploy to Production
 
-Comprehensive deployment guide available in [DEPLOYMENT.md](DEPLOYMENT.md).
+Comprehensive guides available:
+
+-   [DEPLOYMENT.md](DEPLOYMENT.md) - Full deployment instructions
+-   [OPERATE.md](OPERATE.md) - Operations and monitoring commands
 
 **Quick Start:**
-1. Create Railway PostgreSQL database
-2. Connect GitHub repo to Render
-3. Deploy using `render.yaml` blueprint
-4. Set environment variables in Render dashboard (including Railway credentials)
-5. Configure `ENVIRONMENT=prod`
 
-The cron job runs daily at 5 AM UTC by default (configurable in `render.yaml`).
+1. Install Fly CLI: `brew install flyctl`
+2. Login: `fly auth login`
+3. Launch app: `fly launch --no-deploy`
+4. Set secrets: `fly secrets set OPENAI_API_KEY="..." MY_EMAIL="..." APP_PASSWORD="..."`
+5. Deploy: `fly deploy`
+
+The cron job runs daily at 5:00 AM UTC by default (configurable in `start-cron.sh`).
 
 ## Pipeline Workflow
 
 1. **Scraping** (Hours configurable, default 60h)
-   - Fetch YouTube videos from configured channels
-   - Parse OpenAI blog RSS feed
-   - Parse Anthropic blog RSS feeds (news, research, engineering)
-   - Store raw content in database (deduplicates by ID)
+
+    - Fetch YouTube videos from configured channels
+    - Parse OpenAI blog RSS feed
+    - Parse Anthropic blog RSS feeds (news, research, engineering)
+    - Store raw content in database (deduplicates by ID)
 
 2. **Content Processing**
-   - Extract full markdown from Anthropic articles
-   - Fetch YouTube transcripts (with proxy support)
-   - Skip already processed content
+
+    - Extract full markdown from Anthropic articles
+    - Fetch YouTube transcripts (with proxy support)
+    - Skip already processed content
 
 3. **AI Digest Generation**
-   - Generate summaries for all new content
-   - Create compelling titles
-   - Store digests with article references
+
+    - Generate summaries for all new content
+    - Create compelling titles
+    - Store digests with article references
 
 4. **Curation & Ranking**
-   - Load user profile preferences
-   - Rank digests using GPT-4 based on relevance
-   - Select top N articles (default 10)
+
+    - Load user profile preferences
+    - Rank digests using GPT-4 based on relevance
+    - Select top N articles (default 10)
 
 5. **Email Delivery**
-   - Generate HTML email with ranked articles
-   - Send via Gmail SMTP
-   - Include article titles, summaries, and direct links
+    - Generate HTML email with ranked articles
+    - Send via Gmail SMTP
+    - Include article titles, summaries, and direct links
 
 ## Usage Examples
 
 ### Run with default settings (60 hours, top 10)
+
 ```bash
 uv run python -m main
 ```
 
 ### Run with custom parameters
+
 ```bash
 # 24 hours lookback, top 5 articles
 uv run python -m main 24 5
 ```
 
 ### Check logs
+
 ```bash
 # Local
 uv run python -m main 2>&1 | tee pipeline.log
@@ -355,24 +381,28 @@ ranked = agent.rank_digests(digests, top_n=5)
 ## Troubleshooting
 
 ### Database Connection Issues
-- Verify PostgreSQL is running: `docker ps`
-- Check connection settings in `.env.dev` or `.env`
-- Ensure `ENVIRONMENT` variable is set correctly for production
+
+-   Verify PostgreSQL is running: `docker ps`
+-   Check connection settings in `.env.dev` or `.env`
+-   Ensure `ENVIRONMENT` variable is set correctly for production
 
 ### YouTube Transcript Errors
-- Some videos don't have transcripts enabled
-- Use proxy credentials if rate-limited
-- Check YouTube channel IDs are correct
+
+-   Some videos don't have transcripts enabled
+-   Use proxy credentials if rate-limited
+-   Check YouTube channel IDs are correct
 
 ### Email Delivery Failures
-- Use Gmail app password, not regular password
-- Enable "Less secure app access" if needed
-- Verify `MY_EMAIL` and `APP_PASSWORD` are set
+
+-   Use Gmail app password, not regular password
+-   Enable "Less secure app access" if needed
+-   Verify `MY_EMAIL` and `APP_PASSWORD` are set
 
 ### OpenAI API Errors
-- Check API key is valid
-- Verify account has sufficient credits
-- Monitor rate limits
+
+-   Check API key is valid
+-   Verify account has sufficient credits
+-   Monitor rate limits
 
 ## License
 
@@ -382,7 +412,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 This project was inspired by best practices from the following resources:
 
-- [**Dave Ebbelaar**: Build a Complete End-to-End GenAI Project in 3 Hours](https://www.youtube.com/watch?v=E8zpgNPx8jE)
+-   [**Dave Ebbelaar**: Build a Complete End-to-End GenAI Project in 3 Hours](https://www.youtube.com/watch?v=E8zpgNPx8jE)
 
 ## Contributing
 
@@ -391,5 +421,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Support
 
 For issues and questions:
-- Check [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment guide
-- Open an issue on GitHub
+
+-   Check [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment guide
+-   Open an issue on GitHub

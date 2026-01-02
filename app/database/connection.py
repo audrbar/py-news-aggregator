@@ -3,7 +3,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load environment-specific .env file
+env = os.getenv("ENVIRONMENT", "dev")
+if env == "prod":
+    load_dotenv()  # Loads .env file
+else:
+    load_dotenv(".env.dev")  # Loads .env.dev file
 
 
 def get_database_url() -> str:

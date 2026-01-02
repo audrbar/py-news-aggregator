@@ -1,23 +1,23 @@
-# Using external database (Railway) - local PostgreSQL service disabled
-# To use local PostgreSQL, uncomment the services below
+# Local PostgreSQL service for development
+# For production, use external database connection from .env
 
-# services:
-#   postgres:
-#     image: postgres:17
-#     container_name: py-news-aggregator-db
-#     environment:
-#       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-#       POSTGRES_DB: ${POSTGRES_DB:-py_news_aggregator}
-#     ports:
-#       - "${POSTGRES_PORT:-5432}:5432"
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-#     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
+services:
+  postgres:
+    image: postgres:17
+    container_name: py-news-aggregator-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-py_news_aggregator}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:

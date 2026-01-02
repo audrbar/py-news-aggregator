@@ -76,9 +76,14 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         results["email"] = email_result
 
         if email_result["success"]:
-            logger.info(
-                f"✓ Email sent successfully with {email_result['articles_count']} articles"
-            )
+            if email_result.get("skipped"):
+                logger.info(
+                    f"ℹ️  {email_result.get('reason', 'No content available')} - Skipping email"
+                )
+            else:
+                logger.info(
+                    f"✓ Email sent successfully with {email_result['articles_count']} articles"
+                )
             results["success"] = True
         else:
             logger.error(

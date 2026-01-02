@@ -83,8 +83,20 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
             "articles_count": len(result.articles),
         }
     except ValueError as e:
-        logger.error(f"Error sending email: {e}")
-        return {"success": False, "error": str(e)}
+        error_msg = str(e)
+        if "No digests available" in error_msg:
+            logger.info(
+                f"ℹ️  No new content available from the last {hours} hours. Email not sent."
+            )
+            return {
+                "success": True,
+                "skipped": True,
+                "reason": f"No digests found from the last {hours} hours",
+                "articles_count": 0,
+            }
+        else:
+            logger.error(f"Error sending email: {e}")
+            return {"success": False, "error": error_msg}
 
 
 if __name__ == "__main__":

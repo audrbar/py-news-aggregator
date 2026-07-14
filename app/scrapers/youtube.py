@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import os
+import logging
 import feedparser
 from pydantic import BaseModel
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -23,16 +24,20 @@ class ChannelVideo(BaseModel):
 
 class YouTubeScraper:
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         proxy_config = None
         proxy_username = os.getenv("PROXY_USERNAME")
         proxy_password = os.getenv("PROXY_PASSWORD")
+        self.using_proxy = False
 
         if proxy_username and proxy_password:
             proxy_config = WebshareProxyConfig(
                 proxy_username=proxy_username, proxy_password=proxy_password
             )
+            self.using_proxy = True
 
         self.transcript_api = YouTubeTranscriptApi(proxy_config=proxy_config)
+        self.direct_transcript_api = YouTubeTranscriptApi()
 
     def _get_rss_url(self, channel_id: str) -> str:
         return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
@@ -53,7 +58,30 @@ class YouTubeScraper:
             return Transcript(text=text)
         except (TranscriptsDisabled, NoTranscriptFound):
             return None
-        except Exception:
+        except Exception as exc:
+            # Some proxy providers intermittently return 407; retry once without proxy.
+            if self.using_proxy and "407 Proxy Authentication Required" in str(exc):
+                self.logger.warning(
+                    "Proxy authentication failed for video %s; retrying transcript fetch without proxy",
+                    video_id,
+                )
+                try:
+                    transcript = self.direct_transcript_api.fetch(video_id)
+                    text = " ".join([snippet.text for snippet in transcript.snippets])
+                    return Transcript(text=text)
+                except (TranscriptsDisabled, NoTranscriptFound):
+                    return None
+                except Exception as direct_exc:
+                    self.logger.warning(
+                        "Direct transcript fetch failed for video %s after proxy fallback: %s",
+                        video_id,
+                        direct_exc,
+                    )
+                    return None
+
+            self.logger.warning(
+                "Transcript fetch failed for video %s: %s", video_id, exc
+            )
             return None
 
     def get_latest_videos(self, channel_id: str, hours: int = 24) -> list[ChannelVideo]:
